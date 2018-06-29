@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="DemoLinearLayout">
+    <!--Google推荐ViewGroup写法，<类名> + <后缀>-->
+    <declare-styleable name="DemoLinearLayout_Layout">
         <attr name="demoOrientation" format="enum">
             <enum name="vertical" value="0"/>
             <enum name="horizontal" value="1"/>

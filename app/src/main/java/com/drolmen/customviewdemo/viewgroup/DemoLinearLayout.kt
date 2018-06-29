@@ -1,26 +1,32 @@
 package com.drolmen.customviewdemo.viewgroup
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.LinearLayout
 
 import com.drolmen.customviewdemo.R
 
-class DemoLinearLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ViewGroup(context, attrs) {
+class DemoLinearLayout : ViewGroup {
 
     val TAG = "DemoLinearLayout"
 
     private var mOrientation: Int
 
-    val VERTICAL : Int = 0
-    val HORIZONTAL : Int = 1
+    val VERTICAL: Int = 0
+    val HORIZONTAL: Int = 1
 
     init {
         mOrientation = VERTICAL
-        attrs?.run {
-            readAttribute(attrs)
+    }
+
+    constructor(context: Context?) : this(context, null)
+    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
+        attrs?.let {
+            readAttribute(it)
         }
     }
 
@@ -28,13 +34,13 @@ class DemoLinearLayout @JvmOverloads constructor(context: Context, attrs: Attrib
         //1. 读取属性
         val count = attrs.attributeCount
         for (i in 0 until count) {
-            Log.d(TAG, attrs.getAttributeName(i) +"  " + attrs.getAttributeValue(i))
+            Log.d(TAG, attrs.getAttributeName(i) + "  " + attrs.getAttributeValue(i))
         }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        for (i in 0 until  childCount) {
+        for (i in 0 until childCount) {
             val spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             getChildAt(i).measure(spec, spec)
         }
@@ -65,13 +71,50 @@ class DemoLinearLayout @JvmOverloads constructor(context: Context, attrs: Attrib
 
     }
 
-    //TODO: 继承MarginLayoutParam
-    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
-        return generateLayoutParams(super.generateLayoutParams(attrs))
+    override fun generateDefaultLayoutParams(): ViewGroup.LayoutParams {
+        return LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
     }
 
-    //TODO: 继承MarginLayoutParam
-    override fun generateLayoutParams(p: LayoutParams?): LayoutParams {
-        return MarginLayoutParams(p)
+    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
+        return LayoutParams(context, attrs)
+    }
+
+    override fun generateLayoutParams(p: ViewGroup.LayoutParams?): ViewGroup.LayoutParams {
+        return super.generateLayoutParams(p)
+    }
+
+    class LayoutParams : MarginLayoutParams {
+
+        companion object {
+            const val MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT
+            const val WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+
+        var weight: Int = 0
+        var gravity: Int = -1
+
+        //覆盖父类构造方法为次构造器
+        constructor(c: Context?, attrs: AttributeSet?) : super(c, attrs) {
+            if (c == null || attrs == null) {
+                return
+            }
+
+            val typedArray = c.obtainStyledAttributes(attrs, R.styleable.DemoLinearLayout_Layout)
+
+            weight = typedArray.getInt(R.styleable.DemoLinearLayout_Layout_demoOrientation, 0)
+
+            typedArray?.recycle()
+        }
+
+        constructor(width: Int, height: Int) : super(width, height)
+
+        constructor(width: Int, height: Int, weight: Int) : super(width, height) {
+            this.weight = weight
+        }
+
+        constructor(source: ViewGroup.LayoutParams?) : super(source)
+
+        constructor(source: MarginLayoutParams?) : super(source)
+
     }
 }
